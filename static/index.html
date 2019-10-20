@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Agrifix">
+	<title>Agrifix</title>
+
+	<link rel="icon" href="images/favicon.ico">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/master.css" rel="stylesheet">
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript">
+		var geocoder = new google.maps.Geocoder();
+
+		function geocodePosition(pos) {
+			geocoder.geocode({
+				latLng: pos
+			}, function(responses) {
+				if (responses && responses.length > 0) {
+					updateMarkerAddress(responses[0].formatted_address);
+				} else {
+					updateMarkerAddress('Cannot determine address at this location.');
+				}
+			});
+		}
+
+		function updateMarkerStatus(str) {
+			document.getElementById('markerStatus').innerHTML = str;
+		}
+
+		function updateMarkerPosition(latLng) {
+			document.getElementById('info').innerHTML = [
+				latLng.lat(),
+				latLng.lng()
+			].join(', ');
+		}
+
+		function updateMarkerAddress(str) {
+			document.getElementById('address').innerHTML = str;
+		}
+
+		function initialize() {
+			var latLng = new google.maps.LatLng(45.50884, -73.58781);
+			var map = new google.maps.Map(document.getElementById('mapCanvas'), {
+				zoom: 8,
+				center: latLng,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			});
+			var marker = new google.maps.Marker({
+				position: latLng,
+				title: 'Point A',
+				map: map,
+				draggable: true
+			});
+
+			// Update current position info.
+			updateMarkerPosition(latLng);
+			geocodePosition(latLng);
+
+			// Add dragging event listeners.
+			google.maps.event.addListener(marker, 'dragstart', function() {
+				updateMarkerAddress('Dragging...');
+			});
+
+			google.maps.event.addListener(marker, 'drag', function() {
+				updateMarkerStatus('Dragging...');
+				updateMarkerPosition(marker.getPosition());
+			});
+
+			google.maps.event.addListener(marker, 'dragend', function() {
+				updateMarkerStatus('Drag ended');
+				geocodePosition(marker.getPosition());
+			});
+		}
+
+		// Onload handler to fire off the app.
+		google.maps.event.addDomListener(window, 'load', initialize);
+	</script>
+	<style>
+	#mapCanvas {
+		width: 500px;
+		height: 400px;
+		float: left;
+	}
+	#infoPanel {
+		float: left;
+		margin-left: 10px;
+	}
+	#infoPanel div {
+		margin-bottom: 5px;
+	}
+	</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<a href="index.html" class="navbar-brand"><img class="img-fluid" style="display:inline;" src="images/earth.png"/> Agrifix</a>
+		</div>
+	</nav>
+
+	<!-- Page Content -->
+	<div class="container">
+		<div class="row text-left text-lg-left">
+		<div id="mapCanvas"></div>
+		<div id="infoPanel">
+			<b>Marker status:</b>
+			<div id="markerStatus"><i>Click and drag the marker.</i></div>
+			<b>Current position:</b>
+			<div id="info"></div>
+			<b>Closest matching address:</b>
+			<div id="address"></div>
+		</div>
+		<form action="/action_page.php" method="get">
+			Longitude: <input type="text" name="longitude"><br>
+			Latitude: <input type="text" name="latitude"><br>
+			<button type="submit">Submit</button>
+			<button type="submit" formmethod="post">Submit using POST</button>
+		</form>
+		</div>
+	</div>
+
+	<div class="navbar navbar-inverse navbar-fixed-bottom">
+		<div class="container">
+			<p class="navbar-text pull-left">© 2019 - Agrifix</p>
+		</div>
+	</div>
+
+	<!-- Load JS at the end -->
+	<script type="text/javascript" src="js/libs/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="js/libs/bootstrap.min.js"></script>
+
+</body>
+</html>

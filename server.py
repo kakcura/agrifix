@@ -7,6 +7,7 @@ import reverse_geocoder
 import requests
 from requests.auth import HTTPBasicAuth
 import glob, os
+from subprocess import Popen
 
 from logging.handlers import RotatingFileHandler
 
@@ -55,12 +56,13 @@ def getRadasat1Images(longitude, latitude):
 		linklist=response["entry"][entry]['link']
 		for el in range(len(linklist)):
 			if linklist[el].get('rel')=='alternative':
-				img=requests.get(linklist[el].get('href'), auth=HTTPBasicAuth("Saif Kurdi-Teylouni", "Workfreedom1!"), verify=False)
-				title=img.url.split("FeatureID=")[1].split("&")[0]+".png"
+				img=requests.get(linklist[el].get('href'), auth=HTTPBasicAuth(usr, tkn), verify=False)
+				title=img.url.split("FeatureID=")[1].split("&")[0]+".jpeg"
 				image_pair = {"date" : image_date, "image_url" : title}
 				if img.status_code == 200:
-				    with open(localdir+"/static/images/radarsat1/original/"+title, 'wb') as f:
-				        f.write(img.content)
+					with open(localdir+"/static/images/radarsat1/original/"+title, 'wb') as f:
+						f.write(img.content)
+					Popen(['cd ./modules/colorization && python3 bw2color_image.py --image ../../static/images/radarsat1/original/' + title + ' --prototxt models/colorization_deploy_v2.prototxt --model models/colorization_release_v2.caffemodel --points models/pts_in_hull.npy'], shell=True)
 		response_array.append(image_pair)
 
 	# Sort the images by date.

@@ -27,6 +27,11 @@
 					formatted_address = address.name + ", " + address.admin1 + ", " + address.cc
 					updateMarkerAddress(formatted_address);
 				});
+
+				var rotator1 = document.getElementById('rotator1');
+				rotator1.src = "images/icons/loading.gif";
+				var rotator1 = document.getElementById('rotator2');
+				rotator2.src = "images/icons/loading.gif";
 			});
 		}
 
@@ -47,8 +52,6 @@
 				for(var i = 0; i < prsdata.length; i++) {
 				var obj = prsdata[i];
 					radarimgs.push(obj.image_url);
-					console.log(i);
-				console.log(radarimgs[i]);
 				}
 			});
 
@@ -58,13 +61,20 @@
 			document.getElementById('address').innerHTML = str;
 		}
 
+		var counter = 0;
+
 		function updateImg() {
-  		var rotator = document.getElementById('rotator'); //get the element
-			var ix=(radarimgs.indexOf(rotator.src) == -1) ? 0 : radarimgs.indexOf(rotator.src)+1;
-			if(ix==radarimgs.length)
-				ix=0;
-			//console.log(radarimgs[ix]+ ix);
-			rotator.src = radarimgs[ix];
+		var rotator1 = document.getElementById('rotator1'); //get the element
+		var rotator2 = document.getElementById('rotator2'); //get the element
+			if (radarimgs) {
+				rotator1.src = "images/radarsat1/original/" + radarimgs[counter];
+				rotator2.src = "images/radarsat1/colorized/" + radarimgs[counter];
+
+				counter ++;
+
+				if(counter==radarimgs.length)
+				counter=0;
+			}
 		}
 
 		function initialize() {
@@ -100,15 +110,9 @@
 				updateMarkerPosition(marker.getPosition());
 				geocodePosition(marker.getPosition());
 			});
-
-			(function() {
-	    var rotator = document.getElementById('rotator'); //get the element
-			//console.log(window.radarimgs[num]);
-	    setInterval(function(){                           //interval changer
-					updateImg();
-	    }, 2000);
-			}());
-
+			setInterval(function(){
+				updateImg();
+			}, 2000);
 		}
 
 		// Onload handler to fire off the app.
@@ -117,11 +121,12 @@
 	<style>
 	#mapCanvas {
 		width: 100%;
-		height: 500px;
+		height: 400px;
 	}
 	#infoPanel div {
 		margin-bottom: 5px;
 	}
+	.bottom-buffer { margin-bottom:20px; }
 	</style>
 </head>
 <body>
@@ -129,27 +134,38 @@
 	<nav class="navbar navbar-inverse">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
-			<a href="index.html" class="navbar-brand"><img class="img-fluid" style="display:inline;" src="images/icons/earth.png"/> Agrifix</a>
+			<a href="index.html" class="navbar-brand"><img class="img-fluid" style="display:inline;" src="images/icons/earth.png"/> Agrifix -Analyze locational land conditions through historical satellite imagery of RADARSAT-1 with a single click.</a>
 		</div>
 	</nav>
 
 	<!-- Page Content -->
 	<div class="container">
-		<div class="row col-xs-12">
-			<div id="infoPanel">
+		<div class="row bottom-buffer">
+			<div class="col-xs-2">
 				<b>Marker status:</b>
 				<div id="markerStatus"><i>Click and drag the marker.</i></div>
+			</div>
+			<div class="col-xs-2">
 				<b>Current position:</b>
 				<div id="info"></div>
+			</div>
+			<div class="col-xs-2">
 				<b>Closest matching address:</b>
 				<div id="address"></div>
 			</div>
 		</div>
-		<div class="row col-xs-12">
-			<div id="mapCanvas"></div>
+		<div class="row bottom-buffer">
+			<div class="col-xs-12 infoPanel">
+				<div id="mapCanvas"></div>
+			</div>
 		</div>
-		<div class="row col-xs-12">
-			<img id='rotator' src="1.png" height="400" width="400">
+		<div class="row">
+			<div class="col-xs-5">
+				<img id='rotator1' src="images/icons/loading.gif" height="350" width="100%">
+			</div>
+			<div class="col-xs-5">
+				<img id='rotator2' src="images/icons/loading.gif" height="350" width="100%">
+			</div>
 		</div>
 	</div>
 

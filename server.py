@@ -3,7 +3,7 @@
 import json
 import requests
 import logging
-
+import operator 
 
 from logging.handlers import RotatingFileHandler
 
@@ -39,6 +39,9 @@ def getRadasat1Images(longitude, latitude):
 			if linklist[el].get('rel')=='alternative':
 				image_pair = {"date" : image_date, "image_url" : linklist[el].get('href')}
 		response_array.append(image_pair)
+
+	# Sort the images by date.
+	response_array.sort(key = lambda x:x['date'])
 
 	return json.dumps(response_array)
 

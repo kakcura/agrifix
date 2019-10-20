@@ -1,2 +1,6 @@
 *.pyc
 *.log*
+static/images/radarsat1/original/*
+static/images/radarsat1/colorized/*
+modules/colorization/models/*
+!modules/colorization/models/fetch_release_models.sh

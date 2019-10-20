@@ -9,6 +9,8 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, jsonify, request
 
 app = Flask(__name__, static_url_path='')
+usr = 'agrifix'
+tkn = 'a_-_-**_-_-9'
 
 @app.route("/", methods=['GET', 'POST'])
 def root(): 
@@ -22,7 +24,15 @@ def listen():
 	except Exception:
 		return jsonify({"response" : "Bad request!"}), 400
 
-	return jsonify({"response" : "SUCCESS"}), 200 
+	getRadasat1Images(longitude, latitude)
+
+	return jsonify({"response" : "SUCCESS"}), 200
+
+def getRadasat1Images(longitude, latitude):
+	radarsat1_api_url = "https://data.eodms-sgdot.nrcan-rncan.gc.ca/api/dhus/v1/products/Radarsat1/search?q=footprint:Intersects((" + latitude + "," + longitude + "))"
+	response = requests.get(radarsat1_api_url, auth=(usr, tkn)).content
+	print(response)
+
 
 if __name__ == '__main__':
 	handler = RotatingFileHandler('server.log', maxBytes=10000, backupCount=1)

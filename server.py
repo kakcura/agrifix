@@ -3,12 +3,10 @@
 import json
 import requests
 import logging
-import operator
+import reverse_geocoder
 import requests
 from requests.auth import HTTPBasicAuth
-import os
 import glob, os
-
 
 from logging.handlers import RotatingFileHandler
 
@@ -22,8 +20,18 @@ tkn = 'a_-_-**_-_-9'
 def root():
 	return app.send_static_file('index.html')
 
+@app.route('/reverse_geocode', methods=['POST'])
+def get_reverse_geocode():
+	try:
+		longitude = request.form.get("longitude")
+		latitude = request.form.get("latitude")	
+	except Exception:
+		return jsonify({"response" : "Bad request!"}), 400
+
+	return json.dumps(reverse_geocoder.search((longitude, latitude))), 200
+
 @app.route('/coordinates', methods=['POST'])
-def listen():
+def get_images():
 	try:
 		longitude = request.form.get("longitude")
 		latitude = request.form.get("latitude")

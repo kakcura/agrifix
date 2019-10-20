@@ -20,11 +20,13 @@
 			geocoder.geocode({
 				latLng: pos
 			}, function(responses) {
-				if (responses && responses.length > 0) {
-					updateMarkerAddress(responses[0].formatted_address);
-				} else {
-					updateMarkerAddress('Cannot determine address at this location.');
-				}
+
+				$.post( "/reverse_geocode", { longitude: pos.lat(), latitude: pos.lng() })
+					.done(function( data ) {
+					address = jQuery.parseJSON(data)[0]
+					formatted_address = address.name + ", " + address.admin1 + ", " + address.cc
+					updateMarkerAddress(formatted_address);
+				});
 			});
 		}
 
@@ -43,10 +45,10 @@
 				prsdata=JSON.parse(data);
 				radarimgs=[];
 				for(var i = 0; i < prsdata.length; i++) {
-	    		var obj = prsdata[i];
+				var obj = prsdata[i];
 					radarimgs.push(obj.image_url);
 					console.log(i);
-	    		console.log(radarimgs[i]);
+				console.log(radarimgs[i]);
 				}
 			});
 
@@ -116,11 +118,6 @@
 	#mapCanvas {
 		width: 100%;
 		height: 500px;
-		float: left;
-	}
-	#infoPanel {
-		float: left;
-		margin-left: 10px;
 	}
 	#infoPanel div {
 		margin-bottom: 5px;
@@ -138,16 +135,21 @@
 
 	<!-- Page Content -->
 	<div class="container">
-		<div class="row text-left text-lg-left">
-		<div id="mapCanvas"></div>
-		<div id="infoPanel">
-			<b>Marker status:</b>
-			<div id="markerStatus"><i>Click and drag the marker.</i></div>
-			<b>Current position:</b>
-			<div id="info"></div>
-			<img id='rotator' src="1.png" height="42" width="42">
-			<b>Closest matching address:</b>
-			<div id="address"></div>
+		<div class="row col-xs-12">
+			<div id="infoPanel">
+				<b>Marker status:</b>
+				<div id="markerStatus"><i>Click and drag the marker.</i></div>
+				<b>Current position:</b>
+				<div id="info"></div>
+				<b>Closest matching address:</b>
+				<div id="address"></div>
+			</div>
+		</div>
+		<div class="row col-xs-12">
+			<div id="mapCanvas"></div>
+		</div>
+		<div class="row col-xs-12">
+			<img id='rotator' src="1.png" height="400" width="400">
 		</div>
 	</div>
 

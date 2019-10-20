@@ -14,12 +14,11 @@ app = Flask(__name__, static_url_path='')
 def root(): 
 	return app.send_static_file('index.html')
 
-@app.route('/coordinates', methods=['GET', 'POST'])
+@app.route('/coordinates', methods=['POST'])
 def listen():
 	try:
-		query = json.loads(request.data)
-		longitude = query['longitude'].lower()
-		latitude = query['latitude'].lower()		
+		longitude = request.form.get("longitude")
+		latitude = request.form.get("latitude")	
 	except Exception:
 		return jsonify({"response" : "Bad request!"}), 400
 

@@ -35,6 +35,11 @@
 				latLng.lat(),
 				latLng.lng()
 			].join(', ');
+			$.post( "/coordinates", { longitude: latLng.lat(), latitude: latLng.lng() })
+				.done(function( data ) {
+				console.log( "Data Loaded: " + data );
+			});
+
 		}
 
 		function updateMarkerAddress(str) {
@@ -80,8 +85,8 @@
 	</script>
 	<style>
 	#mapCanvas {
-		width: 500px;
-		height: 400px;
+		width: 100%;
+		height: 500px;
 		float: left;
 	}
 	#infoPanel {
@@ -113,13 +118,6 @@
 			<div id="info"></div>
 			<b>Closest matching address:</b>
 			<div id="address"></div>
-		</div>
-		<form action="/action_page.php" method="get">
-			Longitude: <input type="text" name="longitude"><br>
-			Latitude: <input type="text" name="latitude"><br>
-			<button type="submit">Submit</button>
-			<button type="submit" formmethod="post">Submit using POST</button>
-		</form>
 		</div>
 	</div>
 

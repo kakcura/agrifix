@@ -15,6 +15,7 @@
 		var radarimgs=[];
 		var nbimgs=0;
 		var geocoder = new google.maps.Geocoder();
+		var closest_images = ""
 
 		function geocodePosition(pos) {
 			geocoder.geocode({
@@ -46,15 +47,21 @@
 			].join(', ');
 			$.post( "/coordinates", { longitude: latLng.lat(), latitude: latLng.lng() })
 				.done(function( data ) {
-				console.log( "Data Loaded: " + data );
+				//console.log( "Data Loaded: " + data );
 				prsdata=JSON.parse(data);
 				radarimgs=[];
+				radardates=[];
 				for(var i = 0; i < prsdata.length; i++) {
 				var obj = prsdata[i];
 					radarimgs.push(obj.image_url);
+					radardates.push(obj.date)
 				}
+				$.get( "/closest")
+					.done(function( data ) {
+					console.log( "Data Loaded: " + data );
+					closest_images=JSON.parse(data);
+				});
 			});
-
 		}
 
 		function updateMarkerAddress(str) {
@@ -66,9 +73,21 @@
 		function updateImg() {
 		var rotator1 = document.getElementById('rotator1'); //get the element
 		var rotator2 = document.getElementById('rotator2'); //get the element
+		var dates = document.getElementById('dates'); //get the element
+		var image_name = document.getElementById('image_name'); //get the element
+		var closest_image = document.getElementById('closest_image'); //get the element
+
 			if (radarimgs) {
 				rotator1.src = "images/radarsat1/original/" + radarimgs[counter];
 				rotator2.src = "images/radarsat1/colorized/" + radarimgs[counter];
+				dates.innerHTML = radardates[counter];
+				image_name.innerHTML = radarimgs[counter];
+				if (closest_images[radarimgs[counter]]) {
+					closest_image.innerHTML = closest_images[radarimgs[counter]];
+					closest_image.href = "images/radarsat1/original/" + closest_images[radarimgs[counter]];
+				} else {
+					closest_image.innerHTML = "None";
+				}
 
 				counter ++;
 
@@ -161,10 +180,26 @@
 		</div>
 		<div class="row">
 			<div class="col-xs-5">
-				<img id='rotator1' src="images/icons/loading.gif" height="350" width="100%">
+				<img id='rotator1' src="images/icons/loading.gif" height="350" width="100%" onerror="this.onerror=null;this.src='images/icons/loading.gif';" />
 			</div>
 			<div class="col-xs-5">
-				<img id='rotator2' src="images/icons/loading.gif" height="350" width="100%">
+				<img id='rotator2' src="images/icons/loading.gif" height="350" width="100%" onerror="this.onerror=null;this.src='images/icons/loading.gif';" />
+			</div>
+			<div class="col-xs-2">
+				<div class="row">
+					<div class="col-xs-12">
+						<b>Date:</b>
+						<div id="dates"></div>
+					</div>
+					<div class="col-xs-12">
+						<b>Image Name:</b>
+						<div id="image_name"></div>
+					</div>
+					<div class="col-xs-12">
+						<b>First Closest Match:</b><br/>
+						<a href="url" id="closest_image"></a>
+					</div>
+				<div>
 			</div>
 		</div>
 	</div>

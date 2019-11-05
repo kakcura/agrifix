@@ -3,3 +3,5 @@ requests==2.21.0
 numpy==1.17.3
 opencv-python==4.1.1.26
 reverse_geocoder==1.5.1
+GDAL==2.2.2
+ImageHash==4.0

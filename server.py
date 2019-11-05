@@ -8,6 +8,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import glob, os
 from subprocess import Popen
+from modules.radarsat import *
 
 from logging.handlers import RotatingFileHandler
 
@@ -16,6 +17,9 @@ from flask import Flask, jsonify, request
 app = Flask(__name__, static_url_path='')
 usr = 'agrifix'
 tkn = 'a_-_-**_-_-9'
+
+radarsat_data = radarsat.radarsat()
+#radarsat_data.convert_to_png("dat_01.001")
 
 @app.route("/", methods=['GET', 'POST'])
 def root():
@@ -39,16 +43,24 @@ def get_images():
 	except Exception:
 		return jsonify({"response" : "Bad request!"}), 400
 
-	return getRadasat1Images(longitude, latitude), 200
-
-def getRadasat1Images(longitude, latitude):
-	radarsat1_api_url = "https://data.eodms-sgdot.nrcan-rncan.gc.ca/api/dhus/v1/products/Radarsat1/search?q=footprint:Intersects((" + latitude + "," + longitude + "))"
-	response = requests.get(radarsat1_api_url, auth=(usr, tkn)).json()
 	localdir=os.path.dirname(os.path.abspath(__file__))
 	test = localdir+"/static/images/radarsat1/original/*"
 	r = glob.glob(test)
 	for i in r:
-   		os.remove(i)
+		os.remove(i)
+	test = localdir+"/static/images/radarsat1/colorized/*"
+	r = glob.glob(test)
+	for i in r:
+		os.remove(i)
+
+	return getRadasat1Images(longitude, latitude), 200
+
+def getRadasat1Images(longitude, latitude):
+	#radarsat1_api_url = "https://data.eodms-sgdot.nrcan-rncan.gc.ca/api/dhus/v1/products/Radarsat1/search?q=polarisationmode:HH%20AND%20footprint:Intersects((" + latitude + "," + longitude + "))&rows=10&orderby=beginposition asc"
+	radarsat1_api_url = "https://data.eodms-sgdot.nrcan-rncan.gc.ca/api/dhus/v1/products/Radarsat1/search?q=footprint:Intersects((" + latitude + "," + longitude + "))&orderby=beginposition asc"
+	response = requests.get(radarsat1_api_url, auth=(usr, tkn)).json()
+
+	localdir=os.path.dirname(os.path.abspath(__file__))
 
 	response_array = []
 	for entry in range(len(response['entry'])):
@@ -68,7 +80,13 @@ def getRadasat1Images(longitude, latitude):
 	# Sort the images by date.
 	response_array.sort(key = lambda x:x['date'])
 
+	print(radarsat_data.calculate_similarity())
+
 	return json.dumps(response_array)
+
+@app.route('/closest', methods=['GET'])
+def get_closest():
+	return json.dumps(radarsat_data.calculate_similarity()), 200
 
 if __name__ == '__main__':
 	handler = RotatingFileHandler('server.log', maxBytes=10000, backupCount=1)
